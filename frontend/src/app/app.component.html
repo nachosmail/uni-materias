@@ -1,0 +1,19 @@
+<app-header 
+  [userName]="userName"
+  [activeCareer]="activeCareer"
+  [activePlan]="activePlan"
+  (openProfile)="onOpenProfile()"
+  (logout)="onLogout()"
+></app-header>
+
+<!-- MODAL PERFIL -->
+<app-profile-modal
+  [show]="showProfileModal"
+  [email]="email"
+  [fullName]="fullName"
+  (close)="onCloseProfile()"
+  (save)="onSaveProfile($event)"
+></app-profile-modal>
+
+<!-- Aca se cargan las pantallas -->
+<router-outlet></router-outlet>

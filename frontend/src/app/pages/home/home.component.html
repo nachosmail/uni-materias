@@ -1,0 +1,56 @@
+<div class="home-container">
+
+  <div class="header">
+    <h2>Panel de materias</h2>
+    <button class="logout" (click)="logout()">Cerrar sesión</button>
+  </div>
+
+  <div *ngIf="loadingProfile">Cargando tu perfil...</div>
+
+  <!-- CARRERAS -->
+  <div class="section">
+    <h3>Carrera</h3>
+
+    <div *ngIf="loadingCareers">Cargando carreras...</div>
+
+    <select
+      *ngIf="!loadingCareers"
+      [(ngModel)]="selectedCareer"
+      (change)="onCareerChange()"
+    >
+      <option [ngValue]="null" disabled>Selecciona una carrera...</option>
+      <option *ngFor="let c of careers" [ngValue]="c.id">
+        {{ c.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- PLANES -->
+  <div class="section" *ngIf="selectedCareer">
+    <h3>Plan</h3>
+
+    <div *ngIf="loadingPlans">Cargando planes...</div>
+
+    <select
+      *ngIf="!loadingPlans"
+      [(ngModel)]="selectedPlan"
+    >
+      <option [ngValue]="null" disabled>Selecciona un plan...</option>
+      <option *ngFor="let p of plans" [ngValue]="p.id">
+        {{ p.code }} - {{ p.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- BOTONES -->
+  <div class="section" *ngIf="selectedPlan">
+    <button class="continue" (click)="goToSubjects()">
+      Ver materias del plan
+    </button>
+
+    <button class="save-profile" (click)="saveProfile()">
+      Guardar como mi plan
+    </button>
+  </div>
+
+</div>

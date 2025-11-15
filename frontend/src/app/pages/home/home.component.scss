@@ -1,0 +1,43 @@
+.home-container {
+  max-width: 500px;
+  margin: 30px auto;
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.section {
+  margin-top: 20px;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.continue {
+  width: 100%;
+  background: #0275d8;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}

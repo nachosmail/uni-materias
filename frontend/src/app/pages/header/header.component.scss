@@ -1,0 +1,53 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #006d3c; /* Verde académico */
+  color: white;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  .logo {
+    width: 32px;
+    margin-right: 8px;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+.middle-section {
+  margin-left: 40px;
+
+  .plan-info {
+    font-size: 15px;
+    opacity: 0.9;
+  }
+}
+
+.btn-subjects {
+  margin-left: 40px;
+  color: white !important;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+}

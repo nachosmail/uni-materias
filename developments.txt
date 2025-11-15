@@ -1,0 +1,57 @@
+PRD
+url:https://vsdlpwghbjwjkvnmuauv.supabase.co
+pw:prd:SNuAg80PfTxWLwd8
+API KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZGxwd2doYmp3amt2bm11YXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5Njc2NjIsImV4cCI6MjA3ODU0MzY2Mn0.7nH9KgqiJnVLpSRXTTEUOoaGboq4xZfAarg0owpBmKg
+anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZGxwd2doYmp3amt2bm11YXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5Njc2NjIsImV4cCI6MjA3ODU0MzY2Mn0.7nH9KgqiJnVLpSRXTTEUOoaGboq4xZfAarg0owpBmKg
+service_role: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZGxwd2doYmp3amt2bm11YXV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mjk2NzY2MiwiZXhwIjoyMDc4NTQzNjYyfQ.lQ-8iwp9Xnxyt1tmHjLpyvlOyjWjqWkEf_JTqsiXotI
+host:
+db.vsdlpwghbjwjkvnmuauv.supabase.co
+
+port:
+5432
+
+database:
+postgres
+
+user:
+postgres
+
+
+
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://vsdlpwghbjwjkvnmuauv.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+DEV
+pw:kjgR7o8tJmHhYRE5
+url: https://whjzdqgiwabydgvsmxex.supabase.co
+anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoanpkcWdpd2FieWRndnNteGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NjQ2MzMsImV4cCI6MjA3ODU0MDYzM30.H88dJVe87gkRMthUx2r_7Cx7hSq1S93b_zko7lQY0xw
+service_role: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoanpkcWdpd2FieWRndnNteGV4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mjk2NDYzMywiZXhwIjoyMDc4NTQwNjMzfQ.-uvC2blL1KViWk6IlFNsnUg5DcqXA99e76wi0XY_VlY
+api key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoanpkcWdpd2FieWRndnNteGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NjQ2MzMsImV4cCI6MjA3ODU0MDYzM30.H88dJVe87gkRMthUx2r_7Cx7hSq1S93b_zko7lQY0xw
+
+host:
+db.whjzdqgiwabydgvsmxex.supabase.co
+
+port:
+5432
+
+database:
+postgres
+
+user:
+postgres
+
+
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://whjzdqgiwabydgvsmxex.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+
+nachito.-s@hotmail.com
+prueba123

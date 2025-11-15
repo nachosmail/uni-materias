@@ -1,0 +1,54 @@
+<mat-toolbar color="primary" class="header">
+
+  <!-- LOGO + TITULO -->
+  <div class="left-section" (click)="goHome.emit()">
+    <img src="assets/logo_uni.png" alt="logo" class="logo">
+    <span class="title">UniMaterias</span>
+  </div>
+
+  <!-- PLAN ACTIVO -->
+  <div class="middle-section" *ngIf="activeCareer && activePlan">
+    <span class="plan-info">
+      {{ activeCareer }} — Plan {{ activePlan }}
+    </span>
+  </div>
+
+  <!-- BOTÓN MIS MATERIAS -->
+  <button mat-button (click)="goHome.emit()" class="btn-subjects">
+    <mat-icon>school</mat-icon>
+    Mis Materias
+  </button>
+
+  <span class="spacer"></span>
+
+  <!-- USUARIO -->
+  <div class="user-section">
+    <span class="user-name">{{ userName }}</span>
+
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu">
+
+      <button mat-menu-item (click)="openProfile.emit()">
+        <mat-icon>person</mat-icon>
+        Perfil
+      </button>
+
+      <button mat-menu-item (click)="changePlan.emit()">
+        <mat-icon>sync</mat-icon>
+        Cambiar carrera/plan
+      </button>
+
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item (click)="logout.emit()">
+        <mat-icon>logout</mat-icon>
+        Cerrar sesión
+      </button>
+
+    </mat-menu>
+  </div>
+
+</mat-toolbar>

@@ -1,0 +1,107 @@
+from sqlalchemy import (
+    Column, Integer, String, Boolean, ForeignKey
+)
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from .db import Base
+from datetime import datetime
+
+
+# ======================================
+# CAREERS
+# ======================================
+class Career(Base):
+    __tablename__ = "careers"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+
+# ======================================
+# PLANS
+# ======================================
+class Plan(Base):
+    __tablename__ = "plans"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    career_id: Mapped[int] = mapped_column(ForeignKey("careers.id"))
+    code: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    career = relationship("Career", backref="plans")
+
+
+# ======================================
+# SUBJECT (catálogo global)
+# ======================================
+class Subject(Base):
+    __tablename__ = "subjects"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    credits: Mapped[int] = mapped_column(Integer, default=0)
+
+
+# ======================================
+# PLAN-SUBJECT (materia dentro del plan)
+# ======================================
+class PlanSubject(Base):
+    __tablename__ = "plan_subjects"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
+
+    year_suggested: Mapped[int | None]
+    semester_suggested: Mapped[int | None]
+    is_elective: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    plan = relationship("Plan", backref="plan_subjects")
+    subject = relationship("Subject")
+
+
+# ======================================
+# SUBJECT PREREQUISITES (correlativas)
+# ======================================
+class SubjectPrerequisite(Base):
+    __tablename__ = "subject_prerequisites"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
+    prereq_subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
+
+    subject = relationship("Subject", foreign_keys=[subject_id])
+    prereq_subject = relationship("Subject", foreign_keys=[prereq_subject_id])
+
+
+# ======================================
+# USER PROFILE (elige carrera/plan)
+# ======================================
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    user_id: Mapped[str] = mapped_column(String, primary_key=True)
+    career_id: Mapped[int] = mapped_column(ForeignKey("careers.id"))
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    career = relationship("Career")
+    plan = relationship("Plan")
+
+
+# ======================================
+# USER SUBJECT (estados por materia)
+# ======================================
+class UserSubject(Base):
+    __tablename__ = "user_subjects"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(String, index=True)
+    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
+    status: Mapped[str] = mapped_column(String(20))  # approved, in_progress, pending
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    subject = relationship("Subject")
