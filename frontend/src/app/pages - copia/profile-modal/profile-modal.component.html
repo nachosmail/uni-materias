@@ -1,0 +1,22 @@
+<div class="modal-backdrop" *ngIf="show">
+  <div class="modal-window">
+
+    <h3>Mi Perfil</h3>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="text" [value]="email" disabled />
+    </div>
+
+    <div class="field">
+      <label>Nombre completo</label>
+      <input [(ngModel)]="fullName" type="text" />
+    </div>
+
+    <div class="actions">
+      <button (click)="onClose()">Cancelar</button>
+      <button class="save-btn" (click)="onSave()">Guardar</button>
+    </div>
+
+  </div>
+</div>

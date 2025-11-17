@@ -2,6 +2,8 @@ from sqlalchemy import (
     Column, Integer, String, Boolean, ForeignKey
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from .db import Base
 from datetime import datetime
 
@@ -100,8 +102,11 @@ class UserSubject(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[str] = mapped_column(String, index=True)
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"))
-    status: Mapped[str] = mapped_column(String(20))  # approved, in_progress, pending
+    plan_subject_id: Mapped[int] = mapped_column(ForeignKey("plan_subjects.id"))
+    status: Mapped[str] = mapped_column(String(20))
+    grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
-    subject = relationship("Subject")
+    plan_subject = relationship("PlanSubject")
+
+
