@@ -1,16 +1,15 @@
 from sqlalchemy import (
-    Column, Integer, String, Boolean, ForeignKey
+    Column, Integer, String, Boolean, ForeignKey, Enum as PgEnum
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-from .db import Base
+from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime
+from .db import Base
 
 
-# ======================================
+# --------------------------------------
 # CAREERS
-# ======================================
+# --------------------------------------
 class Career(Base):
     __tablename__ = "careers"
 
@@ -18,9 +17,9 @@ class Career(Base):
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
 
-# ======================================
+# --------------------------------------
 # PLANS
-# ======================================
+# --------------------------------------
 class Plan(Base):
     __tablename__ = "plans"
 
@@ -33,9 +32,9 @@ class Plan(Base):
     career = relationship("Career", backref="plans")
 
 
-# ======================================
-# SUBJECT (catálogo global)
-# ======================================
+# --------------------------------------
+# SUBJECT
+# --------------------------------------
 class Subject(Base):
     __tablename__ = "subjects"
 
@@ -45,9 +44,9 @@ class Subject(Base):
     credits: Mapped[int] = mapped_column(Integer, default=0)
 
 
-# ======================================
-# PLAN-SUBJECT (materia dentro del plan)
-# ======================================
+# --------------------------------------
+# PLAN SUBJECT
+# --------------------------------------
 class PlanSubject(Base):
     __tablename__ = "plan_subjects"
 
@@ -63,9 +62,9 @@ class PlanSubject(Base):
     subject = relationship("Subject")
 
 
-# ======================================
-# SUBJECT PREREQUISITES (correlativas)
-# ======================================
+# --------------------------------------
+# SUBJECT PREREQUISITE
+# --------------------------------------
 class SubjectPrerequisite(Base):
     __tablename__ = "subject_prerequisites"
 
@@ -77,9 +76,9 @@ class SubjectPrerequisite(Base):
     prereq_subject = relationship("Subject", foreign_keys=[prereq_subject_id])
 
 
-# ======================================
-# USER PROFILE (elige carrera/plan)
-# ======================================
+# --------------------------------------
+# USER PROFILE
+# --------------------------------------
 class UserProfile(Base):
     __tablename__ = "user_profiles"
 
@@ -94,19 +93,32 @@ class UserProfile(Base):
     plan = relationship("Plan")
 
 
-# ======================================
-# USER SUBJECT (estados por materia)
-# ======================================
+# ENUM — debés tenerlo creado en Supabase exactamente con estos valores:
+# CREATE TYPE subject_status AS ENUM ('aprobada','pendiente_final','desaprobada','sin_cursar');
+
+# --------------------------------------
+# USER SUBJECT
+# --------------------------------------
 class UserSubject(Base):
     __tablename__ = "user_subjects"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[str] = mapped_column(String, index=True)
     plan_subject_id: Mapped[int] = mapped_column(ForeignKey("plan_subjects.id"))
-    status: Mapped[str] = mapped_column(String(20))
+
+    status: Mapped[str] = mapped_column(
+        ENUM(
+            "aprobada",
+            "pendiente_final",
+            "desaprobada",
+            "sin_cursar",
+            name="subject_status",
+            create_type=False
+        ),
+        default="sin_cursar"
+    )
+
     grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     plan_subject = relationship("PlanSubject")
-
-

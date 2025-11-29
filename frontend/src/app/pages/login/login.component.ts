@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
+import { BackendService } from '../../services/backend.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,8 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
-    private supabase: SupabaseService
+    private supabase: SupabaseService,
+    private backend: BackendService
   ) {}
 
 async login() {
@@ -28,11 +30,45 @@ async login() {
     return;
   }
 
-  // Guardamos el token MANUALMENTE (sin Supabase Locks)
-  localStorage.setItem('access_token', data.session.access_token);
+  const access = data.session.access_token;
+  const refresh = data.session.refresh_token ?? data.session.access_token;
 
-  this.router.navigate(['/home']);
+  localStorage.setItem("access_token", access);
+
+  await this.supabase.setSession(access, refresh);
+
+  // ---------------------------------------------------
+  // 1) Obtener usuario
+  // ---------------------------------------------------
+  const userRes = await this.supabase.getUser();
+  const user = userRes?.data?.user;
+
+  if (!user) {
+    alert("Error cargando usuario");
+    return;
+  }
+
+  // ---------------------------------------------------
+  // 2) Obtener perfil desde backend
+  // ---------------------------------------------------
+  this.backend.getUserProfile(user.id).subscribe({
+    next: (profile) => {
+      if (!profile) {
+        // ==> PRIMERA VEZ: no existe perfil
+        this.router.navigate(['/setup-profile']);
+      } else {
+        // ==> Tiene carrera/plan cargados → ir directo a materias
+        this.router.navigate(['/subjects', profile.plan_id]);
+      }
+    },
+    error: () => {
+      alert("Error obteniendo perfil");
+    }
+  });
 }
+
+
+
 
 
 

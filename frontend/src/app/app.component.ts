@@ -21,7 +21,8 @@ export class AppComponent implements OnInit {
   email = '';
 
   activeCareer = '';
-  activePlan = '';
+  activePlan = '';            // ID numérico
+  activePlanName = '';       // nombre del plan
 
   constructor(
     private supabase: SupabaseService,
@@ -42,41 +43,28 @@ export class AppComponent implements OnInit {
     this.fullName = u.user_metadata?.['full_name'] ?? '';
     this.userName = this.fullName || (this.email.split('@')[0] ?? 'Usuario');
 
-    // Cargar perfil
-    this.backend.getUserProfile(u.id).subscribe(profile => {
-      if (!profile || !profile.plan_id) {
-        // SI NO TIENE PERFIL → forzar setup inicial
+    this.backend.getUserProfile(u.id).subscribe(p => {
+      if (!p) {
         this.router.navigate(['/setup-profile']);
         return;
       }
 
-      // SI TIENE PERFIL → actualizar header
-      this.activeCareer = profile.career_name;
-      this.activePlan = profile.plan_name;
-
-      // Redirigir a materias
-      this.router.navigate(['/subjects']);
+      this.activeCareer = String(p.career_id);
+      this.activePlan = String(p.plan_id);       // numérico
+      this.activePlanName = p.plan_name;
     });
   }
 
-  /* === HEADER EVENTS === */
-
-  onOpenProfile() {
-    this.showProfileModal = true;
-  }
+  onOpenProfile() { this.showProfileModal = true; }
 
   async onSaveProfile(data: { fullName: string }) {
     this.fullName = data.fullName;
     this.userName = data.fullName;
-
     await this.supabase.updateProfileFullName(data.fullName);
-
     this.showProfileModal = false;
   }
 
-  onCloseProfile() {
-    this.showProfileModal = false;
-  }
+  onCloseProfile() { this.showProfileModal = false; }
 
   onLogout() {
     this.supabase.logout();
@@ -84,8 +72,10 @@ export class AppComponent implements OnInit {
   }
 
   onGoHome() {
-    this.router.navigate(['/home']);
+    if (Number(this.activePlan) > 0)
+      this.router.navigate(['/subjects', this.activePlan]);
   }
+
 
   onChangePlan() {
     this.router.navigate(['/setup-profile']);

@@ -1,62 +1,62 @@
-# backend/app/routers/user_subjects.py
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from datetime import datetime
 from app.db import get_db
 from app.models import UserSubject
 
 router = APIRouter(tags=["user_subjects"])
 
 
-class UserSubjectUpdate(BaseModel):
+class UserSubjectPayload(BaseModel):
     user_id: str
-    subject_id: int
-    status: str  # 'approved', 'in_progress', 'pending'
+    plan_subject_id: int
+    status: str  # debe coincidir con ENUM
+
+
+VALID_STATUS = {
+    "aprobada",
+    "pendiente_final",
+    "desaprobada",
+    "sin_cursar"
+}
 
 
 @router.get("/user_subjects")
-def get_user_subjects(
-    user_id: str = Query(...),
-    db: Session = Depends(get_db)
-):
-    """
-    Devuelve el estado de todas las materias de un usuario:
-    [
-      { "subject_id": 10, "status": "approved" },
-      ...
-    ]
-    """
+def get_user_subjects(user_id: str, db: Session = Depends(get_db)):
     rows = db.query(UserSubject).filter(UserSubject.user_id == user_id).all()
+
     return [
-        {"subject_id": r.subject_id, "status": r.status}
+        {
+            "id": r.id,
+            "plan_subject_id": r.plan_subject_id,
+            "status": r.status,
+            "grade": r.grade
+        }
         for r in rows
     ]
 
 
 @router.post("/user_subjects")
-def upsert_user_subject(
-    payload: UserSubjectUpdate,
-    db: Session = Depends(get_db)
-):
-    """
-    Crea o actualiza el estado de una materia de un usuario.
-    """
-    row = (
-        db.query(UserSubject)
-        .filter(
-            UserSubject.user_id == payload.user_id,
-            UserSubject.subject_id == payload.subject_id,
-        )
-        .first()
-    )
+def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_db)):
+
+    if payload.status not in VALID_STATUS:
+        raise HTTPException(400, f"Estado inválido: {payload.status}")
+
+    row = db.query(UserSubject).filter(
+        UserSubject.user_id == payload.user_id,
+        UserSubject.plan_subject_id == payload.plan_subject_id,
+    ).first()
 
     if row:
         row.status = payload.status
+        row.updated_at = datetime.utcnow()
     else:
         row = UserSubject(
             user_id=payload.user_id,
-            subject_id=payload.subject_id,
+            plan_subject_id=payload.plan_subject_id,
             status=payload.status,
+            updated_at=datetime.utcnow()
         )
         db.add(row)
 
@@ -64,6 +64,7 @@ def upsert_user_subject(
     db.refresh(row)
 
     return {
-        "subject_id": row.subject_id,
+        "id": row.id,
         "status": row.status,
+        "plan_subject_id": row.plan_subject_id
     }

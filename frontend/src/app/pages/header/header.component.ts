@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// Angular Material 20 (módulos clásicos)
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +25,7 @@ export class HeaderComponent {
 
   @Input() userName: string = '';
   @Input() activeCareer: string = '';
-  @Input() activePlan: string = '';
+  @Input() activePlanName: string = '';   // 👍 ahora string y solo nombre del plan
 
   @Output() goHome = new EventEmitter<void>();
   @Output() openProfile = new EventEmitter<void>();

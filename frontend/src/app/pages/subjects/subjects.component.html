@@ -1,168 +1,56 @@
 <div class="subjects-container">
+  <h2>Materias</h2>
 
-  <div class="header">
-    <h2>Materias del plan {{ planId }}</h2>
-    <button (click)="backToHome()">Volver</button>
-  </div>
+  <div *ngIf="loading">Cargando materias...</div>
 
-  <!-- RESUMEN -->
-  <div class="summary">
-    <div>Total: {{ totalSubjects }}</div>
-    <div>Aprobadas: {{ approvedCount }}</div>
-    <div>En curso: {{ inProgressCount }}</div>
-    <div>Pendientes: {{ pendingCount }}</div>
-    <div>Disponibles: {{ availableCount }}</div>
-  </div>
+  <div *ngIf="!loading">
 
-  <div *ngIf="loadingSubjects">Cargando materias...</div>
+    <div *ngFor="let s of subjects" class="subject-card">
 
-  <div class="content" *ngIf="!loadingSubjects">
-
-    <!-- LISTA POR AÑO -->
-    <div class="subjects-list">
-      <div *ngFor="let year of years">
-        <div class="year-block" *ngIf="hasSubjectsForYear(year)">
-          <h3>Año {{ year }}</h3>
-
-          <div class="subjects-grid">
-            <div
-              *ngFor="let s of getSubjectsByYear(year)"
-              class="subject-card"
-              [ngClass]="s.status"
-              (click)="openDetail(s)"
-            >
-              <div class="subject-header">
-                <span class="code">{{ s.code }}</span>
-                <span *ngIf="s.is_elective" class="tag">Electiva</span>
-              </div>
-              <div class="name">{{ s.name }}</div>
-              <div class="meta">
-                <span *ngIf="s.semester_suggested">Cuatri: {{ s.semester_suggested }}</span>
-              </div>
-
-              <div class="status-buttons" (click)="$event.stopPropagation()">
-                <button
-                  [class.active]="s.status === 'approved'"
-                  (click)="changeStatus(s, 'approved')"
-                >
-                  ✔ Aprobada
-                </button>
-                <button
-                  [class.active]="s.status === 'in_progress'"
-                  (click)="changeStatus(s, 'in_progress')"
-                >
-                  📚 En curso
-                </button>
-                <button
-                  [class.active]="s.status === 'pending'"
-                  (click)="changeStatus(s, 'pending')"
-                >
-                  ⏳ Pendiente
-                </button>
-              </div>
-
-              <div class="prereq-info">
-                <span *ngIf="!s.prerequisites || s.prerequisites.length === 0">
-                  Sin correlativas
-                </span>
-                <span *ngIf="s.prerequisites && s.prerequisites.length > 0">
-                  Correlativas:
-                  {{ formatPrereqCodes(s) }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Materias sin año sugerido -->
-      <div class="year-block" *ngIf="hasSubjectsWithoutYear()">
-        <h3>Sin año sugerido</h3>
-        <div class="subjects-grid">
-          <div
-            *ngFor="let s of getSubjectsWithoutYear()"
-            class="subject-card"
-            [ngClass]="s.status"
-            (click)="openDetail(s)"
-          >
-            <div class="subject-header">
-              <span class="code">{{ s.code }}</span>
-              <span *ngIf="s.is_elective" class="tag">Electiva</span>
-            </div>
-            <div class="name">{{ s.name }}</div>
-
-            <div class="status-buttons" (click)="$event.stopPropagation()">
-              <button
-                [class.active]="s.status === 'approved'"
-                (click)="changeStatus(s, 'approved')"
-              >
-                ✔ Aprobada
-              </button>
-              <button
-                [class.active]="s.status === 'in_progress'"
-                (click)="changeStatus(s, 'in_progress')"
-              >
-                📚 En curso
-              </button>
-              <button
-                [class.active]="s.status === 'pending'"
-                (click)="changeStatus(s, 'pending')"
-              >
-                ⏳ Pendiente
-              </button>
-            </div>
-
-            <div class="prereq-info">
-              <span *ngIf="!s.prerequisites || s.prerequisites.length === 0">
-                Sin correlativas
-              </span>
-              <span *ngIf="s.prerequisites && s.prerequisites.length > 0">
-                Correlativas:
-                {{ formatPrereqCodes(s) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="info">
+      <strong>{{ s.name }}</strong>
+      <small>{{ s.code }}</small>
     </div>
 
-    <!-- PANEL DE DETALLE -->
-    <div class="detail-panel" *ngIf="selectedSubject">
-      <h3>Detalle de {{ selectedSubject.name }}</h3>
 
-      <div *ngIf="loadingDetail">Cargando correlatividades...</div>
+<div class="status-buttons">
 
-      <div *ngIf="!loadingDetail && detailedCorrels">
-        <p><strong>Código:</strong> {{ selectedSubject.code }}</p>
-        <p *ngIf="selectedSubject.year_suggested">
-          <strong>Año sugerido:</strong> {{ selectedSubject.year_suggested }}
-        </p>
-        <p *ngIf="selectedSubject.semester_suggested">
-          <strong>Cuatrimestre:</strong> {{ selectedSubject.semester_suggested }}
-        </p>
+  <button
+    class="status-btn"
+    [class.active]="userSubjects[s.plan_subject_id] === 'sin_cursar'"
+    [class.sin-cursar]="true"
+    (click)="changeStatus(s.plan_subject_id, 'sin_cursar')">
+    Sin cursar
+  </button>
 
-        <h4>Correlativas necesarias</h4>
-        <ul>
-          <li *ngFor="let r of detailedCorrels.requires">
-            {{ r.code }} - {{ r.name }}
-          </li>
-          <li *ngIf="detailedCorrels.requires.length === 0">
-            Ninguna.
-          </li>
-        </ul>
+  <button
+    class="status-btn"
+    [class.active]="userSubjects[s.plan_subject_id] === 'aprobada'"
+    [class.aprobada]="true"
+    (click)="changeStatus(s.plan_subject_id, 'aprobada')">
+    Aprobada
+  </button>
 
-        <h4>Esta materia habilita</h4>
-        <ul>
-          <li *ngFor="let e of detailedCorrels.enables">
-            {{ e.code }} - {{ e.name }}
-          </li>
-          <li *ngIf="detailedCorrels.enables.length === 0">
-            Ninguna en este plan.
-          </li>
-        </ul>
-      </div>
+  <button
+    class="status-btn"
+    [class.active]="userSubjects[s.plan_subject_id] === 'pendiente_final'"
+    [class.pendiente-final]="true"
+    (click)="changeStatus(s.plan_subject_id, 'pendiente_final')">
+    Pendiente final
+  </button>
+
+  <button
+    class="status-btn"
+    [class.active]="userSubjects[s.plan_subject_id] === 'desaprobada'"
+    [class.desaprobada]="true"
+    (click)="changeStatus(s.plan_subject_id, 'desaprobada')">
+    Desaprobada
+  </button>
+
+</div>
+
+
     </div>
 
   </div>
-
 </div>

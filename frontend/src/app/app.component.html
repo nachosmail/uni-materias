@@ -1,10 +1,13 @@
 <app-header 
   [userName]="userName"
   [activeCareer]="activeCareer"
-  [activePlan]="activePlan"
+  [activePlanName]="activePlanName"
   (openProfile)="onOpenProfile()"
   (logout)="onLogout()"
+  (goHome)="onGoHome()"
+  (changePlan)="onChangePlan()"
 ></app-header>
+
 
 <!-- MODAL PERFIL -->
 <app-profile-modal
