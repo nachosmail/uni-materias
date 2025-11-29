@@ -30,9 +30,10 @@ app.include_router(user_subjects.router, prefix="/api")
 app.include_router(user_profiles.router, prefix="/api")
 app.include_router(plan_full.router, prefix="/api")
 
-
 # ========= DB =========
-Base.metadata.create_all(bind=engine)
+ENV = os.getenv("ENV","dev")
+if ENV == "dev":
+    Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
