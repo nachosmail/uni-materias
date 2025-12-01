@@ -1,13 +1,13 @@
-import uvicorn
 import os
 
-def start():
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000)),
-        reload=False
-    )
+import uvicorn
+
+
+def main():
+    port = int(os.getenv("PORT", "8000"))
+    # "app.main:app" → paquete "app", módulo "main", variable FastAPI "app"
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+
 
 if __name__ == "__main__":
-    start()
+    main()

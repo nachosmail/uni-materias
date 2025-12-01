@@ -1,8 +1,17 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.db import Base, engine
-from app.routers import careers, plans, subjects, user_subjects, user_profiles, plan_full
-import os
+from app.routers import (
+    careers,
+    plans,
+    subjects,
+    user_subjects,
+    user_profiles,
+    plan_full,
+)
 
 app = FastAPI()
 
@@ -13,6 +22,8 @@ raw_origins = os.getenv(
     "http://localhost:4200,https://uni-materias.vercel.app"
 )
 origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
+print("CORS allowed origins:", origins)
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,9 +42,10 @@ app.include_router(user_profiles.router, prefix="/api")
 app.include_router(plan_full.router, prefix="/api")
 
 # ========= DB =========
-ENV = os.getenv("ENV","dev")
+ENV = os.getenv("ENV", "dev")
 if ENV == "dev":
     Base.metadata.create_all(bind=engine)
+
 
 @app.get("/")
 def root():
