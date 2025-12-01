@@ -143,11 +143,15 @@ class UserSubject(Base):
         index=True,
     )
 
+    # 👇 Usar directamente el ENUM de Postgres
     status = Column(
-        PgEnum(
-            SubjectStatus,
-            name="subject_status",
-            create_type=False,
+        ENUM(
+            'aprobada',
+            'pendiente_final',
+            'desaprobada',
+            'sin_cursar',
+            name='subject_status',  # DEBE coincidir con el tipo existente en la BD
+            create_type=False,      # importante: el tipo ya existe, no intentar crearlo
         ),
         nullable=True,
     )
@@ -156,5 +160,3 @@ class UserSubject(Base):
     updated_at = Column(DateTime, nullable=True)
 
     plan_subject = relationship("PlanSubject", back_populates="user_subjects")
-
-

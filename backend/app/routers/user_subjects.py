@@ -41,7 +41,10 @@ def get_user_subjects(user_id: UUID, db: Session = Depends(get_db)):
 @router.post("/user_subjects")
 def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_db)):
 
-    if payload.status not in VALID_STATUS:
+    # normalizar a minúsculas
+    status_value = payload.status.lower()
+
+    if status_value not in VALID_STATUS:
         raise HTTPException(400, f"Estado inválido: {payload.status}")
 
     row = db.query(UserSubject).filter(
@@ -50,13 +53,13 @@ def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_d
     ).first()
 
     if row:
-        row.status = payload.status
+        row.status = status_value
         row.updated_at = datetime.utcnow()
     else:
         row = UserSubject(
             user_id=payload.user_id,
             plan_subject_id=payload.plan_subject_id,
-            status=payload.status,
+            status=status_value,
             updated_at=datetime.utcnow()
         )
         db.add(row)
@@ -69,3 +72,4 @@ def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_d
         "status": row.status,
         "plan_subject_id": row.plan_subject_id
     }
+
