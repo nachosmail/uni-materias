@@ -1,46 +1,42 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  // Raíz → redirige a /login
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-
-  // Auth
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-
-  // Home (lazy standalone)
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then(m => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/register/register.component').then(m => m.RegisterComponent),
+  },
+  {
+    path: 'setup-profile',
+    loadComponent: () =>
+      import('./pages/setup-profile/setup-profile.component').then(m => m.SetupProfileComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'subjects/:planId',              // 👈 ACÁ el cambio
+    loadComponent: () =>
+      import('./pages/subjects/subjects.component').then(m => m.SubjectsComponent),
+    canActivate: [authGuard],
+  },
   {
     path: 'home',
     loadComponent: () =>
       import('./pages/home/home.component').then(m => m.HomeComponent),
+    canActivate: [authGuard],
   },
-
-  // Setup de perfil
   {
-    path: 'setup-profile',
-    loadComponent: () =>
-      import('./pages/setup-profile/setup-profile.component')
-        .then(m => m.SetupProfileComponent),
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'home',
   },
-
-  // Subjects sin planId
   {
-    path: 'subjects',
-    loadComponent: () =>
-      import('./pages/subjects/subjects.component')
-        .then(m => m.SubjectsComponent),
+    path: '**',
+    redirectTo: 'home',
   },
-
-  // Subjects con planId
-  {
-    path: 'subjects/:planId',
-    loadComponent: () =>
-      import('./pages/subjects/subjects.component')
-        .then(m => m.SubjectsComponent),
-  },
-
-  // Cualquier otra ruta → login
-  { path: '**', redirectTo: 'login' },
 ];

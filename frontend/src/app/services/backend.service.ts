@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment  } from '../../environments/environment.prod';
+import { Observable, throwError } from 'rxjs';
+import { environment } from '../../environments/environment.prod';
+import { AuthService } from './auth.service';
 
 export interface PlanSubjectDto {
-  plan_subject_id: number;       // 👈 id de la tabla plan_subjects
-  subject_id: number;            // 👈 id de la tabla subjects
+  plan_subject_id: number;       // id de la tabla plan_subjects
+  subject_id: number;            // id de la tabla subjects
   code: string;
   name: string;
   year_suggested: number | null;
   semester_suggested: number | null;
   is_elective: boolean;
 }
-
-
 
 export interface UserSubjectDto {
   id: number;
@@ -22,16 +21,18 @@ export interface UserSubjectDto {
   status: string;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
 
-  private API = environment.api
-  // 'https://uni-materias-backend.onrender.com/api';
+  private readonly API_BASE = '/api';   // por si lo necesitás luego
+  private API = environment.api;       // p. ej. 'https://uni-materias-backend.onrender.com/api'
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+  ) {}
 
   // === carreras ===
   getCareers(): Observable<any[]> {
@@ -51,9 +52,15 @@ export class BackendService {
   }
 
   // === perfil ===
-  getUserProfile(userId: string): Observable<any | null> {
+  // userId es OPCIONAL: si no lo pasás, lo saca de AuthService
+  getUserProfile(userId?: string): Observable<any | null> {
+    const id = userId ?? this.auth.currentUserId;
+    if (!id) {
+      return throwError(() => new Error('No hay user_id disponible (usuario no logueado)'));
+    }
+
     return this.http.get<any>(`${this.API}/user_profile`, {
-      params: { user_id: userId }
+      params: { user_id: id }
     });
   }
 
@@ -62,9 +69,14 @@ export class BackendService {
   }
 
   // === user subjects ===
-  getUserSubjects(userId: string): Observable<UserSubjectDto[]> {
+  getUserSubjects(userId?: string): Observable<UserSubjectDto[]> {
+    const id = userId ?? this.auth.currentUserId;
+    if (!id) {
+      return throwError(() => new Error('No hay user_id disponible (usuario no logueado)'));
+    }
+
     return this.http.get<UserSubjectDto[]>(`${this.API}/user_subjects`, {
-      params: { user_id: userId }
+      params: { user_id: id }
     });
   }
 
@@ -79,14 +91,18 @@ export class BackendService {
     });
   }
 
-getPlanFull(planId: number, userId: string): Observable<any> {
-  return this.http.get(`${this.API}/plan_full`, {
-    params: {
-      plan_id: planId,
-      user_id: userId
+  getPlanFull(planId: number, userId?: string): Observable<any> {
+    const id = userId ?? this.auth.currentUserId;
+    if (!id) {
+      return throwError(() => new Error('No hay user_id disponible (usuario no logueado)'));
     }
-  });
-}
 
+    return this.http.get(`${this.API}/plan_full`, {
+      params: {
+        plan_id: planId,
+        user_id: id
+      }
+    });
+  }
 
 }

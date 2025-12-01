@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BackendService, PlanSubjectDto, UserSubjectDto } from '../../services/backend.service';
+import { BackendService, PlanSubjectDto } from '../../services/backend.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-subjects',
@@ -18,7 +18,8 @@ export class SubjectsComponent implements OnInit {
   userId!: string;
 
   subjects: PlanSubjectDto[] = [];
-  userSubjects: Record<number, string> = {};  // plan_subject_id → estado
+  // plan_subject_id → estado
+  userSubjects: Record<number, string> = {};
 
   loading = true;
 
@@ -26,40 +27,40 @@ export class SubjectsComponent implements OnInit {
     private backend: BackendService,
     private route: ActivatedRoute,
     private router: Router,
-    private supabase: SupabaseService
+    private auth: AuthService,
   ) {}
 
-  async ngOnInit() {
-    // 1) Obtener planId
-    this.planId = Number(this.route.snapshot.paramMap.get("planId"));
+  ngOnInit() {
+    // 1) Obtener planId desde la ruta
+    this.planId = Number(this.route.snapshot.paramMap.get('planId'));
     if (!this.planId) {
-      alert("Plan inválido");
+      alert('Plan inválido');
       this.router.navigate(['/home']);
       return;
     }
 
-    // 2) Obtener usuario de Supabase
-    const res = await this.supabase.getUser();
-    const u = res?.data?.user;
-
-    if (!u) {
+    // 2) Obtener userId desde AuthService
+    const currentUserId = this.auth.currentUserId;
+    if (!currentUserId) {
+      // En teoría no deberías llegar acá porque authGuard protege la ruta,
+      // pero por las dudas…
       this.router.navigate(['/login']);
       return;
     }
 
-    this.userId = u.id;
+    this.userId = currentUserId;
 
-    // 3) Cargar todo
+    // 3) Cargar datos
     this.loadData();
   }
 
   loadData() {
     this.loading = true;
 
-    // 1) cargar materias
-    this.backend.getPlanFull(this.planId, this.userId).subscribe({
+    // No hace falta pasar userId, BackendService lo toma de AuthService
+    this.backend.getPlanFull(this.planId).subscribe({
       next: (resp) => {
-        console.log("Plan full:",resp)
+        console.log('Plan full:', resp);
         this.subjects = resp.subjects;
 
         resp.subjects.forEach((s: any) => {
@@ -69,7 +70,7 @@ export class SubjectsComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        console.error("Error cargando materias");
+        console.error('Error cargando materias');
         this.loading = false;
       }
     });
@@ -79,14 +80,14 @@ export class SubjectsComponent implements OnInit {
     this.backend.updateUserSubjectStatus({
       user_id: this.userId,
       plan_subject_id: planSubjectId,
-      status: newStatus
+      status: newStatus,
     }).subscribe({
       next: () => {
-        // actualizar UI sin relogueo
+        // actualizar UI sin recargar todo
         this.userSubjects[planSubjectId] = newStatus;
       },
       error: () => {
-        alert("Error guardando estado de la materia");
+        alert('Error guardando estado de la materia');
       }
     });
   }
