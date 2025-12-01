@@ -6,7 +6,9 @@ from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime
 from .db import Base
 
-from uuid import UUID
+from uuid import uuid4  # 👈 SOLO uuid4 para generar ids
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID  # 👈 tipo de columna Postgres
+
 
 
 # --------------------------------------
@@ -106,15 +108,13 @@ class UserSubject(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
-        UUID(as_uuid=True),
+        PG_UUID(as_uuid=True),  # 👈 usamos PG_UUID
         ForeignKey("user_profiles.user_id"),
         nullable=False,
         index=True,
     )
-
     plan_subject_id = Column(Integer, nullable=False, index=True)
     status = Column(String, nullable=True)
     grade = Column(Integer, nullable=True)
     updated_at = Column(DateTime, nullable=True)
-
     plan_subject = relationship("PlanSubject")
