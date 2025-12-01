@@ -28,7 +28,18 @@ export class SubjectsComponent implements OnInit {
     blocked: false
   };
 
+    // Métricas dashboard
+  totalSubjects = 0;
+  totalApproved = 0;
+  totalPendingFinal = 0;
+  totalAvailable = 0;
+  totalBlocked = 0;
+  completionPct = 0;
+
+
   availabilitySnapshot: Record<number,boolean> = {};
+
+  loading = false;
 
   constructor(
     private backend: BackendService,
@@ -52,6 +63,7 @@ export class SubjectsComponent implements OnInit {
   }
 
 loadData() {
+  this.loading = true;
   this.backend.getPlanFull(this.planId, this.userId).subscribe({
     next: (resp: any) => {
       const subjects = resp.subjects as any[];
@@ -145,16 +157,39 @@ loadData() {
         };
       });
 
+      this.computeStats();
+
       // 3) guardamos el snapshot nuevo para la próxima vez
       this.availabilitySnapshot = newSnapshot;
 
       this.groupByYear();
+      this.loading = false
     },
     error: (err) => {
       console.error('Error cargando materias', err);
+      this.loading = false
     }
   });
 }
+
+
+  private computeStats() {
+    this.totalSubjects = this.subjects.length;
+
+    this.totalApproved = this.subjects.filter(s => s.isApproved).length;
+    this.totalPendingFinal = this.subjects.filter(s => s.isPending).length;
+
+    // disponibles para cursar (tienen todas las correlativas ok, pero aún no están aprobadas)
+    this.totalAvailable = this.subjects.filter(
+      s => s.isAvailable && !s.isApproved && !s.isPending && !s.isBlocked
+    ).length;
+
+    this.totalBlocked = this.subjects.filter(s => s.isBlocked).length;
+
+    this.completionPct = this.totalSubjects
+      ? Math.round((this.totalApproved * 100) / this.totalSubjects)
+      : 0;
+  }
 
 
   groupByYear() {

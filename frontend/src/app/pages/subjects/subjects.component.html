@@ -10,6 +10,44 @@
 
 <hr>
 
+<!-- DASHBOARD RESUMEN -->
+<div class="summary-wrapper" *ngIf="!loading && totalSubjects > 0">
+  <div class="summary-main-card">
+    <div class="summary-main-number">{{ completionPct }}%</div>
+    <div class="summary-main-label">de la carrera aprobada</div>
+    <div class="summary-main-sub">
+      {{ totalApproved }} de {{ totalSubjects }} materias
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">Total materias</div>
+      <div class="value">{{ totalSubjects }}</div>
+    </div>
+
+    <div class="summary-card ok">
+      <div class="label">Aprobadas</div>
+      <div class="value">{{ totalApproved }}</div>
+    </div>
+
+    <div class="summary-card pending">
+      <div class="label">Pendiente de final</div>
+      <div class="value">{{ totalPendingFinal }}</div>
+    </div>
+
+    <div class="summary-card available">
+      <div class="label">Disponibles para cursar</div>
+      <div class="value">{{ totalAvailable }}</div>
+    </div>
+
+    <div class="summary-card blocked">
+      <div class="label">Bloqueadas por correlativas</div>
+      <div class="value">{{ totalBlocked }}</div>
+    </div>
+  </div>
+</div>
+
 <!-- AGRUPADO POR AÑO -->
 <div *ngFor="let year of (grouped | keyvalue)">
   <h3 *ngIf="+year.key > 0">Año {{ +year.key }}</h3>
@@ -44,8 +82,6 @@
         </ul>
       </div>
 
-
-      <!-- Selector de estado -->
       <!-- Acciones de estado con iconos -->
       <div class="status-actions" [class.disabled]="sub.isBlocked">
         <!-- Sin cursar -->
@@ -84,7 +120,6 @@
           <span class="label">Aprobada</span>
         </button>
       </div>
-
 
     </div>
   </div>
