@@ -19,7 +19,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'subjects/:planId',              // 👈 ACÁ el cambio
+    path: 'subjects/:planId',   // 👈👈 antes era solo 'subjects'
     loadComponent: () =>
       import('./pages/subjects/subjects.component').then(m => m.SubjectsComponent),
     canActivate: [authGuard],
