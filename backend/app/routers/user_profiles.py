@@ -15,29 +15,32 @@ router = APIRouter(
 @router.get("")
 def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     """
-    Devuelve el perfil de usuario asociado al user_id recibido como query param.
-
-    Ejemplo de URL:
-    GET /api/user_profile?user_id=6530e60d-92cc-44f4-a97d-223befd5c312
+    Devuelve el perfil del usuario con NOMBRE de carrera y NOMBRE del plan.
     """
-    profile = (
-        db.query(models.UserProfile)
-        .filter(models.UserProfile.user_id == user_id)
+
+    row = (
+        db.query(
+            models.UserProfile,
+            models.Career.name.label("career_name"),
+            models.Plan.name.label("plan_name")
+        )
+        .join(models.Career, models.Career.id == models.UserProfile.career_id)
+        .join(models.Plan, models.Plan.id == models.UserProfile.plan_id)
+        .filter(models.UserProfile.user_id == str(user_id))
         .first()
     )
 
-    if profile is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User profile not found",
-        )
+    if not row:
+        raise HTTPException(404, "User profile not found")
 
-    # Convertimos el modelo SQLAlchemy en un dict serializable
-    data = profile.__dict__.copy()
-    data.pop("_sa_instance_state", None)
+    profile, career_name, plan_name = row
 
-    # Si user_id es UUID, lo devolvemos como string
-    if isinstance(data.get("user_id"), UUID):
-        data["user_id"] = str(data["user_id"])
-
-    return data
+    return {
+        "user_id": str(profile.user_id),
+        "career_id": profile.career_id,
+        "plan_id": profile.plan_id,
+        "career_name": career_name,
+        "plan_name": plan_name,
+        "created_at": profile.created_at,
+        "updated_at": profile.updated_at,
+    }

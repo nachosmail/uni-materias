@@ -28,7 +28,7 @@ export class HeaderComponent {
   @Input() activePlanName: string = '';
 
   @Output() goHome = new EventEmitter<void>();
-  @Output() goSubjects = new EventEmitter<void>();   // 👈 nuevo
+  @Output() goSubjects = new EventEmitter<void>();
   @Output() openProfile = new EventEmitter<void>();
   @Output() changePlan = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();

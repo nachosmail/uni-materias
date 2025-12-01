@@ -12,7 +12,8 @@ router = APIRouter(tags=["user_subjects"])
 class UserSubjectPayload(BaseModel):
     user_id: UUID
     plan_subject_id: int
-    status: str  # debe coincidir con ENUM
+    status: str
+    grade: int | None = None
 
 
 VALID_STATUS = {
@@ -46,6 +47,8 @@ def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_d
 
     if status_value not in VALID_STATUS:
         raise HTTPException(400, f"Estado inválido: {payload.status}")
+    
+    grade_value = payload.grade if payload.status == "aprobada" else None
 
     row = db.query(UserSubject).filter(
         UserSubject.user_id == payload.user_id,
@@ -55,11 +58,13 @@ def upsert_user_subject(payload: UserSubjectPayload, db: Session = Depends(get_d
     if row:
         row.status = status_value
         row.updated_at = datetime.utcnow()
+        row.grade = grade_value
     else:
         row = UserSubject(
             user_id=payload.user_id,
             plan_subject_id=payload.plan_subject_id,
             status=status_value,
+            grade = grade_value,
             updated_at=datetime.utcnow()
         )
         db.add(row)

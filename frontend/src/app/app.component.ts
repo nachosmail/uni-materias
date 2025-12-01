@@ -13,6 +13,9 @@ import { ProfileModalComponent } from './pages/profile-modal/profile-modal.compo
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+
+  activeCareerId: number | null = null;
+  activePlanId: number | null = null;
   title = 'uni-materias';
   showProfileModal = false;
 
@@ -43,17 +46,53 @@ export class AppComponent implements OnInit {
     this.fullName = u.user_metadata?.['full_name'] ?? '';
     this.userName = this.fullName || (this.email.split('@')[0] ?? 'Usuario');
 
-    this.backend.getUserProfile(u.id).subscribe(p => {
-      if (!p) {
-        this.router.navigate(['/setup-profile']);
-        return;
-      }
+this.backend.getUserProfile(u.id).subscribe(profile => {
+  console.log("📌 UserProfile recibido desde backend:", profile);
 
-      this.activeCareer = String(p.career_id);
-      this.activePlan = String(p.plan_id);   // ID numérico como string sirve igual
-      this.activePlanName = p.plan_name;
-    });
+  if (!profile) {
+    this.router.navigate(['/setup-profile']);
+    return;
   }
+
+  // Guardamos los IDs
+  this.activeCareerId = profile.career_id;
+  this.activePlanId = profile.plan_id;
+
+  // Para navegar a /subjects más tarde
+  this.activePlan = String(profile.plan_id);
+
+  // Cargamos los nombres reales desde las otras APIs
+  this.loadCareerAndPlanNames(profile.career_id, profile.plan_id);
+});
+
+  }
+
+  private loadCareerAndPlanNames(careerId: number, planId: number) {
+  // 1) Nombre de la carrera
+  this.backend.getCareers().subscribe({
+    next: (careers) => {
+      const career = careers.find(c => c.id === careerId);
+      this.activeCareer = career?.name ?? `Carrera ${careerId}`;
+    },
+    error: (err) => {
+      console.error('Error cargando carreras', err);
+      this.activeCareer = `Carrera ${careerId}`;
+    }
+  });
+
+  // 2) Nombre del plan (filtrado por career_id)
+  this.backend.getPlans(careerId).subscribe({
+    next: (plans) => {
+      const plan = plans.find(p => p.id === planId);
+      this.activePlanName = plan?.name ?? `Plan ${planId}`;
+    },
+    error: (err) => {
+      console.error('Error cargando planes', err);
+      this.activePlanName = `Plan ${planId}`;
+    }
+  });
+}
+
 
   onOpenProfile() { this.showProfileModal = true; }
 

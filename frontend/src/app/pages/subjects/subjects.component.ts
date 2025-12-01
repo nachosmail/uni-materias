@@ -35,6 +35,7 @@ export class SubjectsComponent implements OnInit {
   totalAvailable = 0;
   totalBlocked = 0;
   completionPct = 0;
+  averageGrade = 0;
 
 
   availabilitySnapshot: Record<number,boolean> = {};
@@ -189,6 +190,17 @@ loadData() {
     this.completionPct = this.totalSubjects
       ? Math.round((this.totalApproved * 100) / this.totalSubjects)
       : 0;
+
+      const approvedWithGrade = this.subjects.filter(
+        s => s.isApproved && s.grade != null
+      );
+
+      if (approvedWithGrade.length > 0) {
+      const sum = approvedWithGrade.reduce((acc, s) => acc + s.grade, 0);
+      this.averageGrade = +(sum / approvedWithGrade.length).toFixed(2);
+    } else {
+      this.averageGrade = 0;
+    }
   }
 
 
@@ -215,18 +227,25 @@ loadData() {
   onStatusClick(sub: any, newStatus: string) {
     // si está bloqueada, no se puede cambiar
     if (sub.isBlocked) return;
-
+    
     // si ya está en ese estado, no hago nada
     if (sub.status === newStatus) return;
+
+    let newGrade = sub.grade;
+    if (newStatus !=='aprobada') {
+      newGrade = null;
+    }
 
     this.backend.updateUserSubjectStatus({
       user_id: this.userId,
       plan_subject_id: sub.plan_subject_id,
-      status: newStatus
+      status: newStatus,
+      grade: newGrade
     }).subscribe({
       next: () => {
         // actualizo localmente y recargo para recalcular bloqueos/habilitaciones
         sub.status = newStatus;
+        sub.grade = newGrade;
         this.loadData();
       },
       error: () => {
@@ -234,5 +253,27 @@ loadData() {
       }
     });
   }
+
+
+  onGradeChange(sub: any) {
+  if (!sub.isApproved) return; // solo tiene sentido con 'aprobada'
+
+  const gradeNum = sub.grade ? Number(sub.grade) : null;
+
+  this.backend.updateUserSubjectStatus({
+    user_id: this.userId,
+    plan_subject_id: sub.plan_subject_id,
+    status: sub.status,   // 'aprobada'
+    grade: gradeNum
+  }).subscribe({
+    next: () => {
+      sub.grade = gradeNum;
+      this.computeStats(); // actualizar promedio sin recargar todo
+    },
+    error: () => {
+      alert("Error guardando nota");
+    }
+  });
+}
 
 }

@@ -25,6 +25,10 @@
       <div class="label">Total materias</div>
       <div class="value">{{ totalSubjects }}</div>
     </div>
+    <div class="summary-card">
+      <div class="label">Promedio</div>
+      <div class="value">{{ averageGrade > 0 ? (averageGrade | number:'1.2-2') : '-' }}</div>
+    </div>
 
     <div class="summary-card ok">
       <div class="label">Aprobadas</div>
@@ -63,6 +67,19 @@
          }">
 
       <div class="title">{{ sub.code }} - {{ sub.name }}</div>
+      <!-- Campo de nota (solo si está aprobada) -->
+      <div class="grade-row" *ngIf="sub.isApproved">
+        <label>Nota:</label>
+        <input
+          type="number"
+          min="4"
+          max="10"
+          [(ngModel)]="sub.grade"
+          (change)="onGradeChange(sub)"
+          class="grade-input"
+        />
+      </div>
+
 
       <!-- Estado -->
       <div class="status">

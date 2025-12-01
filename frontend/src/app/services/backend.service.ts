@@ -19,7 +19,9 @@ export interface UserSubjectDto {
   user_id: string;
   plan_subject_id: number;
   status: string;
+  grade: number | null;
 }
+
 
 @Injectable({
   providedIn: 'root'
