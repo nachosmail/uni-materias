@@ -10,6 +10,8 @@ from uuid import uuid4  # 👈 SOLO uuid4 para generar ids
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID  # 👈 tipo de columna Postgres
 from uuid import UUID
 
+import enum
+
 
 
 # --------------------------------------
@@ -115,6 +117,13 @@ class UserProfile(Base):
 # --------------------------------------
 # USER SUBJECT
 # --------------------------------------
+class SubjectStatus(str, enum.Enum):
+    APROBADA = "aprobada"
+    PENDIENTE_FINAL = "pendiente_final"
+    DESAPROBADA = "desaprobada"
+    SIN_CURSAR = "sin_cursar"
+
+
 class UserSubject(Base):
     __tablename__ = "user_subjects"
 
@@ -127,7 +136,6 @@ class UserSubject(Base):
         index=True,
     )
 
-    # 👇 IMPORTANTE: acá ahora declaramos la ForeignKey
     plan_subject_id = Column(
         Integer,
         ForeignKey("plan_subjects.id"),
@@ -135,11 +143,18 @@ class UserSubject(Base):
         index=True,
     )
 
-    status = Column(String, nullable=True)
+    status = Column(
+        PgEnum(
+            SubjectStatus,
+            name="subject_status",
+            create_type=False,
+        ),
+        nullable=True,
+    )
+
     grade = Column(Integer, nullable=True)
     updated_at = Column(DateTime, nullable=True)
 
-    # 👇 ahora SQLAlchemy sabe cómo unir con plan_subjects
     plan_subject = relationship("PlanSubject", back_populates="user_subjects")
 
 
