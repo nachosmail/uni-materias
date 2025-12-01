@@ -8,6 +8,7 @@ from .db import Base
 
 from uuid import uuid4  # 👈 SOLO uuid4 para generar ids
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID  # 👈 tipo de columna Postgres
+from uuid import UUID
 
 
 
@@ -65,6 +66,11 @@ class PlanSubject(Base):
     plan = relationship("Plan", backref="plan_subjects")
     subject = relationship("Subject")
 
+    # 👇 NUEVO: relación inversa con UserSubject
+    user_subjects = relationship("UserSubject", back_populates="plan_subject")
+
+
+
 
 # --------------------------------------
 # SUBJECT PREREQUISITE
@@ -83,10 +89,15 @@ class SubjectPrerequisite(Base):
 # --------------------------------------
 # USER PROFILE
 # --------------------------------------
+
+
 class UserProfile(Base):
     __tablename__ = "user_profiles"
 
-    user_id: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+    )
     career_id: Mapped[int] = mapped_column(ForeignKey("careers.id"))
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
 
@@ -95,6 +106,7 @@ class UserProfile(Base):
 
     career = relationship("Career")
     plan = relationship("Plan")
+
 
 
 # ENUM — debés tenerlo creado en Supabase exactamente con estos valores:
@@ -107,14 +119,27 @@ class UserSubject(Base):
     __tablename__ = "user_subjects"
 
     id = Column(Integer, primary_key=True, index=True)
+
     user_id = Column(
-        PG_UUID(as_uuid=True),  # 👈 usamos PG_UUID
+        PG_UUID(as_uuid=True),
         ForeignKey("user_profiles.user_id"),
         nullable=False,
         index=True,
     )
-    plan_subject_id = Column(Integer, nullable=False, index=True)
+
+    # 👇 IMPORTANTE: acá ahora declaramos la ForeignKey
+    plan_subject_id = Column(
+        Integer,
+        ForeignKey("plan_subjects.id"),
+        nullable=False,
+        index=True,
+    )
+
     status = Column(String, nullable=True)
     grade = Column(Integer, nullable=True)
     updated_at = Column(DateTime, nullable=True)
-    plan_subject = relationship("PlanSubject")
+
+    # 👇 ahora SQLAlchemy sabe cómo unir con plan_subjects
+    plan_subject = relationship("PlanSubject", back_populates="user_subjects")
+
+
