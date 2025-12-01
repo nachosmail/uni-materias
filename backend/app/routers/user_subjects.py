@@ -4,12 +4,13 @@ from pydantic import BaseModel
 from datetime import datetime
 from app.db import get_db
 from app.models import UserSubject
+from uuid import UUID
 
 router = APIRouter(tags=["user_subjects"])
 
 
 class UserSubjectPayload(BaseModel):
-    user_id: str
+    user_id: UUID
     plan_subject_id: int
     status: str  # debe coincidir con ENUM
 
@@ -23,7 +24,7 @@ VALID_STATUS = {
 
 
 @router.get("/user_subjects")
-def get_user_subjects(user_id: str, db: Session = Depends(get_db)):
+def get_user_subjects(user_id: UUID, db: Session = Depends(get_db)):
     rows = db.query(UserSubject).filter(UserSubject.user_id == user_id).all()
 
     return [

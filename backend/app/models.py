@@ -1,10 +1,12 @@
 from sqlalchemy import (
-    Column, Integer, String, Boolean, ForeignKey, Enum as PgEnum
+    Column, Integer, String, Boolean, DateTime, ForeignKey, Enum as PgEnum
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime
 from .db import Base
+
+from uuid import UUID
 
 
 # --------------------------------------
@@ -102,23 +104,17 @@ class UserProfile(Base):
 class UserSubject(Base):
     __tablename__ = "user_subjects"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[str] = mapped_column(String, index=True)
-    plan_subject_id: Mapped[int] = mapped_column(ForeignKey("plan_subjects.id"))
-
-    status: Mapped[str] = mapped_column(
-        ENUM(
-            "aprobada",
-            "pendiente_final",
-            "desaprobada",
-            "sin_cursar",
-            name="subject_status",
-            create_type=False
-        ),
-        default="sin_cursar"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("user_profiles.user_id"),
+        nullable=False,
+        index=True
     )
 
-    grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    plan_subject_id = Column(Integer, nullable=False, index=True)
+    status = Column(String, nullable=True)
+    grade = Column(Integer, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
 
     plan_subject = relationship("PlanSubject")

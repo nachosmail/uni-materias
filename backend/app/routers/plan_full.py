@@ -4,13 +4,15 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import PlanSubject, SubjectPrerequisite, UserSubject
 
+from uuid import UUID
+
 router = APIRouter(tags=["plans_full"])
 
 
 @router.get("/plan_full")
 def get_plan_full(
     plan_id: int = Query(...),
-    user_id: str = Query(...),
+    user_id: UUID = Query(...),
     db: Session = Depends(get_db)
 ):
     """
