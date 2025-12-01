@@ -13,7 +13,7 @@ import { ProfileModalComponent } from './pages/profile-modal/profile-modal.compo
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-
+  title = 'uni-materias';
   showProfileModal = false;
 
   userName = '';

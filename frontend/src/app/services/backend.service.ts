@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment  } from '../../environments/environment.prod';
 
 export interface PlanSubjectDto {
   plan_subject_id: number;       // 👈 id de la tabla plan_subjects
@@ -27,7 +28,8 @@ export interface UserSubjectDto {
 })
 export class BackendService {
 
-  private API = 'https://uni-materias-backend.onrender.com/api';
+  private API = environment.api
+  // 'https://uni-materias-backend.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 
