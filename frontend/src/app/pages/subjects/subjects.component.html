@@ -1,56 +1,93 @@
-<div class="subjects-container">
-  <h2>Materias</h2>
+<h2>Materias del plan</h2>
 
-  <div *ngIf="loading">Cargando materias...</div>
-
-  <div *ngIf="!loading">
-
-    <div *ngFor="let s of subjects" class="subject-card">
-
-    <div class="info">
-      <strong>{{ s.name }}</strong>
-      <small>{{ s.code }}</small>
-    </div>
-
-
-<div class="status-buttons">
-
-  <button
-    class="status-btn"
-    [class.active]="userSubjects[s.plan_subject_id] === 'sin_cursar'"
-    [class.sin-cursar]="true"
-    (click)="changeStatus(s.plan_subject_id, 'sin_cursar')">
-    Sin cursar
-  </button>
-
-  <button
-    class="status-btn"
-    [class.active]="userSubjects[s.plan_subject_id] === 'aprobada'"
-    [class.aprobada]="true"
-    (click)="changeStatus(s.plan_subject_id, 'aprobada')">
-    Aprobada
-  </button>
-
-  <button
-    class="status-btn"
-    [class.active]="userSubjects[s.plan_subject_id] === 'pendiente_final'"
-    [class.pendiente-final]="true"
-    (click)="changeStatus(s.plan_subject_id, 'pendiente_final')">
-    Pendiente final
-  </button>
-
-  <button
-    class="status-btn"
-    [class.active]="userSubjects[s.plan_subject_id] === 'desaprobada'"
-    [class.desaprobada]="true"
-    (click)="changeStatus(s.plan_subject_id, 'desaprobada')">
-    Desaprobada
-  </button>
-
+<!-- FILTROS -->
+<div class="filters">
+  <label><input type="checkbox" [(ngModel)]="filters.available"> Disponibles</label>
+  <label><input type="checkbox" [(ngModel)]="filters.approved"> Aprobadas</label>
+  <label><input type="checkbox" [(ngModel)]="filters.pending"> Pendiente Final</label>
+  <label><input type="checkbox" [(ngModel)]="filters.blocked"> Bloqueadas</label>
 </div>
 
+<hr>
+
+<!-- AGRUPADO POR AÑO -->
+<div *ngFor="let year of (grouped | keyvalue)">
+  <h3 *ngIf="+year.key > 0">Año {{ +year.key }}</h3>
+
+  <div class="year-grid">
+    <div *ngFor="let sub of applyFilters(year.value)" 
+         class="subject-card"
+         [ngClass]="{
+           'approved': sub.isApproved,
+           'pending': sub.isPending,
+           'blocked': sub.isBlocked,
+           'available': sub.isAvailable
+         }">
+
+      <div class="title">{{ sub.code }} - {{ sub.name }}</div>
+
+      <!-- Estado -->
+      <div class="status">
+        <span *ngIf="sub.isApproved">Aprobada ✓</span>
+        <span *ngIf="sub.isPending">Pendiente de Final ⏳</span>
+        <span *ngIf="sub.isBlocked">Bloqueada 🚫</span>
+        <span *ngIf="sub.isAvailable && !sub.isApproved && !sub.isPending">Disponible</span>
+      </div>
+
+      <!-- Correlativas -->
+      <div *ngIf="sub.isBlocked" class="prereq">
+        Requiere:
+        <ul>
+          <li *ngFor="let p of sub.prerequisites" [class.ok]="p.currentStatus === 'aprobada'">
+            {{ p.code }} - {{ p.name }} ({{ p.currentStatus }})
+          </li>
+        </ul>
+      </div>
+
+
+      <!-- Selector de estado -->
+      <!-- Acciones de estado con iconos -->
+      <div class="status-actions" [class.disabled]="sub.isBlocked">
+        <!-- Sin cursar -->
+        <button
+          type="button"
+          class="icon-btn"
+          [class.active]="sub.status === 'sin_cursar'"
+          [disabled]="sub.isBlocked"
+          (click)="onStatusClick(sub, 'sin_cursar')"
+        >
+          <span class="icon">○</span>
+          <span class="label">Sin cursar</span>
+        </button>
+
+        <!-- Pendiente final -->
+        <button
+          type="button"
+          class="icon-btn"
+          [class.active]="sub.status === 'pendiente_final'"
+          [disabled]="sub.isBlocked"
+          (click)="onStatusClick(sub, 'pendiente_final')"
+        >
+          <span class="icon">⏳</span>
+          <span class="label">Final</span>
+        </button>
+
+        <!-- Aprobada -->
+        <button
+          type="button"
+          class="icon-btn"
+          [class.active]="sub.status === 'aprobada'"
+          [disabled]="sub.isBlocked"
+          (click)="onStatusClick(sub, 'aprobada')"
+        >
+          <span class="icon">✓</span>
+          <span class="label">Aprobada</span>
+        </button>
+      </div>
+
 
     </div>
-
   </div>
+
+  <hr>
 </div>
