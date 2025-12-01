@@ -109,7 +109,7 @@ class UserSubject(Base):
         UUID(as_uuid=True),
         ForeignKey("user_profiles.user_id"),
         nullable=False,
-        index=True
+        index=True,
     )
 
     plan_subject_id = Column(Integer, nullable=False, index=True)
