@@ -1,22 +1,19 @@
-<app-header 
+<app-header
   [userName]="userName"
   [activeCareer]="activeCareer"
   [activePlanName]="activePlanName"
-  (openProfile)="onOpenProfile()"
-  (logout)="onLogout()"
   (goHome)="onGoHome()"
+  (goSubjects)="onGoSubjects()"
+  (openProfile)="onOpenProfile()"
   (changePlan)="onChangePlan()"
+  (logout)="onLogout()"
 ></app-header>
 
-
-<!-- MODAL PERFIL -->
 <app-profile-modal
-  [show]="showProfileModal"
-  [email]="email"
+  *ngIf="showProfileModal"
   [fullName]="fullName"
-  (close)="onCloseProfile()"
   (save)="onSaveProfile($event)"
+  (close)="onCloseProfile()"
 ></app-profile-modal>
 
-<!-- Aca se cargan las pantallas -->
 <router-outlet></router-outlet>

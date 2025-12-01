@@ -25,9 +25,10 @@ export class HeaderComponent {
 
   @Input() userName: string = '';
   @Input() activeCareer: string = '';
-  @Input() activePlanName: string = '';   // 👍 ahora string y solo nombre del plan
+  @Input() activePlanName: string = '';
 
   @Output() goHome = new EventEmitter<void>();
+  @Output() goSubjects = new EventEmitter<void>();   // 👈 nuevo
   @Output() openProfile = new EventEmitter<void>();
   @Output() changePlan = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();

@@ -21,8 +21,8 @@ export class AppComponent implements OnInit {
   email = '';
 
   activeCareer = '';
-  activePlan = '';            // ID numérico
-  activePlanName = '';       // nombre del plan
+  activePlan = '';      // lo guardás como string
+  activePlanName = '';
 
   constructor(
     private supabase: SupabaseService,
@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
       }
 
       this.activeCareer = String(p.career_id);
-      this.activePlan = String(p.plan_id);       // numérico
+      this.activePlan = String(p.plan_id);   // ID numérico como string sirve igual
       this.activePlanName = p.plan_name;
     });
   }
@@ -71,11 +71,20 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // 👇 ahora sí home es home
   onGoHome() {
-    if (Number(this.activePlan) > 0)
-      this.router.navigate(['/subjects', this.activePlan]);
+    this.router.navigate(['/home']);
   }
 
+  // 👇 mis materias
+  onGoSubjects() {
+    if (Number(this.activePlan) > 0) {
+      this.router.navigate(['/subjects', this.activePlan]);
+    } else {
+      // si por alguna razón no hay plan, lo mando a configurar
+      this.router.navigate(['/setup-profile']);
+    }
+  }
 
   onChangePlan() {
     this.router.navigate(['/setup-profile']);
