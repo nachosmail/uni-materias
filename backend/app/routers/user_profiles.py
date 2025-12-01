@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app import models, schemas  # ajustá si tus nombres de módulos son distintos
+from app import models  # ya no usamos schemas acá
 
 router = APIRouter(
     prefix="/user_profile",
@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=schemas.UserProfile)
+@router.get("")
 def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     """
     Devuelve el perfil de usuario asociado al user_id recibido como query param.
@@ -32,4 +32,12 @@ def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
             detail="User profile not found",
         )
 
-    return profile
+    # Convertimos el modelo SQLAlchemy en un dict serializable
+    data = profile.__dict__.copy()
+    data.pop("_sa_instance_state", None)
+
+    # Si user_id es UUID, lo devolvemos como string
+    if isinstance(data.get("user_id"), UUID):
+        data["user_id"] = str(data["user_id"])
+
+    return data
