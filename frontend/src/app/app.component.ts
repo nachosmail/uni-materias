@@ -4,11 +4,17 @@ import { SupabaseService } from './services/supabase.service';
 import { BackendService } from './services/backend.service';
 import { HeaderComponent } from './pages/header/header.component';
 import { ProfileModalComponent } from './pages/profile-modal/profile-modal.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, ProfileModalComponent],
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    ProfileModalComponent,
+    CommonModule
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

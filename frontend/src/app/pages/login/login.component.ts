@@ -63,18 +63,19 @@ export class LoginComponent implements OnInit {
     // ---------------------------------------------------
     // 2) Obtener perfil desde backend
     // ---------------------------------------------------
-    this.backend.getUserProfile().subscribe({
+    this.backend.getUserProfile(user.id).subscribe({
       next: (profile) => {
-        if (!profile) {
-          // Primera vez: no existe perfil → completar carrera/plan
+          // Si llegó acá, el perfil existe
+          this.router.navigate(['/subjects',profile.plan_id]);
+      },
+      error: (err) => {
+        console.error(err);
+        if (err.status===404) {
+          //No existe el perfil --> configurar carrera/plan
           this.router.navigate(['/setup-profile']);
         } else {
-          // Tiene carrera/plan cargados
-          this.router.navigate(['/subjects', profile.plan_id]);
+          alert("Error obteniendo el perfil")
         }
-      },
-      error: () => {
-        alert("Error obteniendo perfil");
       }
     });
   }

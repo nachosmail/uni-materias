@@ -31,7 +31,8 @@ def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     )
 
     if not row:
-        raise HTTPException(404, "User profile not found")
+        return None
+        # raise HTTPException(404, "User profile not found")
 
     profile, career_name, plan_name = row
 
