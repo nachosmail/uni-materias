@@ -35,24 +35,34 @@ export class SetupProfileComponent implements OnInit {
     const user = res?.data?.user;
 
     if (!user) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/login']);
       return;
     }
 
     this.userId = user.id;
 
     // 2) Cargar carreras
-    this.backend.getCareers().subscribe(data => {
-      this.careers = data || [];
+    this.backend.getCareers().subscribe({
+      next: data => this.careers = data || [],
+      error: err => {
+        console.error('Error cargando carreras', err);
+        alert('Error cargando la lista de carreras');
+      }
     });
   }
 
   onCareerChange() {
     this.selectedPlan = null;
+    this.plans = [];
+
     if (!this.selectedCareer) return;
 
-    this.backend.getPlans(this.selectedCareer).subscribe(data => {
-      this.plans = data || [];
+    this.backend.getPlans(this.selectedCareer).subscribe({
+      next: data => this.plans = data || [],
+      error: err => {
+        console.error('Error cargando planes', err);
+        alert('Error cargando planes para esta carrera');
+      }
     });
   }
 
@@ -67,10 +77,13 @@ export class SetupProfileComponent implements OnInit {
       career_id: this.selectedCareer,
       plan_id: this.selectedPlan
     }).subscribe({
-      next: () => {
-        this.router.navigate(['/subjects', this.selectedPlan]);
+      next: (resp) => {
+        // navegamos directo a materias del plan elegido
+        const planId = resp?.plan_id ?? this.selectedPlan;
+        this.router.navigate(['/subjects', planId]);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error guardando perfil', err);
         alert('Error guardando tu perfil');
       }
     });

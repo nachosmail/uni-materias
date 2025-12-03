@@ -31,54 +31,53 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  async login() {
-    const { data, error } = await this.supabase.login(this.email, this.password);
 
-    if (error || !data.session) {
-      alert("Error en login: " + error?.message);
-      return;
-    }
+async login() {
+  const { data, error } = await this.supabase.login(this.email, this.password);
 
-    const access = data.session.access_token;
-    const refresh = data.session.refresh_token ?? data.session.access_token;
-
-    localStorage.setItem("access_token", access);
-
-    await this.supabase.setSession(access, refresh);
-
-    // ---------------------------------------------------
-    // 1) Obtener usuario de Supabase
-    // ---------------------------------------------------
-    const userRes = await this.supabase.getUser();
-    const user = userRes?.data?.user;
-
-    if (!user) {
-      alert("Error cargando usuario");
-      return;
-    }
-
-    // Guardar user_id para usarlo en todo el frontend
-    this.auth.setUserId(user.id);
-
-    // ---------------------------------------------------
-    // 2) Obtener perfil desde backend
-    // ---------------------------------------------------
-    this.backend.getUserProfile(user.id).subscribe({
-      next: (profile) => {
-          // Si llegó acá, el perfil existe
-          this.router.navigate(['/subjects',profile.plan_id]);
-      },
-      error: (err) => {
-        console.error(err);
-        if (err.status===404) {
-          //No existe el perfil --> configurar carrera/plan
-          this.router.navigate(['/setup-profile']);
-        } else {
-          alert("Error obteniendo el perfil")
-        }
-      }
-    });
+  if (error || !data.session) {
+    alert("Error en login: " + error?.message);
+    return;
   }
+
+  const access = data.session.access_token;
+  const refresh = data.session.refresh_token ?? data.session.access_token;
+
+  localStorage.setItem("access_token", access);
+  await this.supabase.setSession(access, refresh);
+
+  // 1) Usuario de Supabase
+  const userRes = await this.supabase.getUser();
+  const user = userRes?.data?.user;
+
+  if (!user) {
+    alert("Error cargando usuario");
+    return;
+  }
+
+  // guardamos en AuthService
+  this.auth.setUserId(user.id);
+
+  // 2) Perfil en backend (podés pasar user.id explícito o dejarlo que use AuthService)
+  this.backend.getUserProfile(user.id).subscribe({
+    next: (profile) => {
+      if (!profile || !profile.plan_id) {
+        this.router.navigate(['/setup-profile']);
+      } else {
+        this.router.navigate(['/subjects', profile.plan_id]);
+      }
+    },
+    error: (err) => {
+      console.error('Error al obtener perfil', err);
+      if (err.status === 404) {
+        this.router.navigate(['/setup-profile']);
+      } else {
+        alert("Error obteniendo perfil");
+      }
+    }
+  });
+}
+
 
   register() {
     this.router.navigate(['/register']);
