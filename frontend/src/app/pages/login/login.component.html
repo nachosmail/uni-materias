@@ -1,4 +1,4 @@
-<div style="max-width: 300px; margin: 40px auto; text-align:center;">
+<div class="auth-container">
   <h2>Ingresar</h2>
 
   <form (ngSubmit)="login()">
@@ -9,7 +9,6 @@
       name="email"
       placeholder="Email"
       required
-      style="width:100%; margin-bottom:10px;"
     />
 
     <input
@@ -18,16 +17,13 @@
       name="password"
       placeholder="Contraseña"
       required
-      style="width:100%; margin-bottom:10px;"
     />
 
-    <button type="submit" style="width:100%">Ingresar</button>
+    <button type="submit" class="primary-btn">
+      Ingresar
+    </button>
 
-    <button
-      type="button"
-      (click)="register()"
-      style="width:100%; margin-top:10px;"
-    >
+    <button type="button" class="secondary-btn" (click)="register()">
       Crear cuenta nueva
     </button>
 

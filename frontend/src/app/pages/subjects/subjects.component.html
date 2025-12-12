@@ -1,11 +1,26 @@
-<h2>Materias del plan</h2>
+<h2 class="page-title">Materias del plan</h2>
 
 <!-- FILTROS -->
 <div class="filters">
-  <label><input type="checkbox" [(ngModel)]="filters.available"> Disponibles</label>
-  <label><input type="checkbox" [(ngModel)]="filters.approved"> Aprobadas</label>
-  <label><input type="checkbox" [(ngModel)]="filters.pending"> Pendiente Final</label>
-  <label><input type="checkbox" [(ngModel)]="filters.blocked"> Bloqueadas</label>
+  <label class="filter-chip">
+    <input type="checkbox" [(ngModel)]="filters.available" />
+    <span>Disponibles</span>
+  </label>
+
+  <label class="filter-chip">
+    <input type="checkbox" [(ngModel)]="filters.approved" />
+    <span>Aprobadas</span>
+  </label>
+
+  <label class="filter-chip">
+    <input type="checkbox" [(ngModel)]="filters.pending" />
+    <span>Pendiente Final</span>
+  </label>
+
+  <label class="filter-chip">
+    <input type="checkbox" [(ngModel)]="filters.blocked" />
+    <span>Bloqueadas</span>
+  </label>
 </div>
 
 <hr>
@@ -25,9 +40,12 @@
       <div class="label">Total materias</div>
       <div class="value">{{ totalSubjects }}</div>
     </div>
+
     <div class="summary-card">
       <div class="label">Promedio</div>
-      <div class="value">{{ averageGrade > 0 ? (averageGrade | number:'1.2-2') : '-' }}</div>
+      <div class="value">
+        {{ averageGrade > 0 ? (averageGrade | number : '1.2-2') : '-' }}
+      </div>
     </div>
 
     <div class="summary-card ok">
@@ -41,33 +59,39 @@
     </div>
 
     <div class="summary-card available">
-      <div class="label">Disponibles para cursar</div>
+      <div class="label">Disponibles</div>
       <div class="value">{{ totalAvailable }}</div>
     </div>
 
     <div class="summary-card blocked">
-      <div class="label">Bloqueadas por correlativas</div>
+      <div class="label">Bloqueadas</div>
       <div class="value">{{ totalBlocked }}</div>
     </div>
   </div>
 </div>
 
-<!-- AGRUPADO POR AÑO -->
+<!-- LISTADO POR AÑO -->
 <div *ngFor="let year of (grouped | keyvalue)">
-  <h3 *ngIf="+year.key > 0">Año {{ +year.key }}</h3>
+  <h3 class="year-title" *ngIf="+year.key > 0">Año {{ +year.key }}</h3>
 
   <div class="year-grid">
-    <div *ngFor="let sub of applyFilters(year.value)" 
-         class="subject-card"
-         [ngClass]="{
-           'approved': sub.isApproved,
-           'pending': sub.isPending,
-           'blocked': sub.isBlocked,
-           'available': sub.isAvailable
-         }">
 
-      <div class="title">{{ sub.code }} - {{ sub.name }}</div>
-      <!-- Campo de nota (solo si está aprobada) -->
+    <div
+      *ngFor="let sub of applyFilters(year.value)"
+      class="subject-card"
+      [ngClass]="{
+        'approved': sub.isApproved,
+        'pending': sub.isPending,
+        'blocked': sub.isBlocked,
+        'available': sub.isAvailable
+      }"
+    >
+
+      <div class="title">
+        {{ sub.code }} – {{ sub.name }}
+      </div>
+
+      <!-- Nota -->
       <div class="grade-row" *ngIf="sub.isApproved">
         <label>Nota:</label>
         <input
@@ -80,28 +104,31 @@
         />
       </div>
 
-
       <!-- Estado -->
       <div class="status">
         <span *ngIf="sub.isApproved">Aprobada ✓</span>
         <span *ngIf="sub.isPending">Pendiente de Final ⏳</span>
         <span *ngIf="sub.isBlocked">Bloqueada 🚫</span>
-        <span *ngIf="sub.isAvailable && !sub.isApproved && !sub.isPending">Disponible</span>
+        <span *ngIf="sub.isAvailable && !sub.isApproved && !sub.isPending">
+          Disponible
+        </span>
       </div>
 
       <!-- Correlativas -->
       <div *ngIf="sub.isBlocked" class="prereq">
         Requiere:
         <ul>
-          <li *ngFor="let p of sub.prerequisites" [class.ok]="p.currentStatus === 'aprobada'">
+          <li
+            *ngFor="let p of sub.prerequisites"
+            [class.ok]="p.currentStatus === 'aprobada'"
+          >
             {{ p.code }} - {{ p.name }} ({{ p.currentStatus }})
           </li>
         </ul>
       </div>
 
-      <!-- Acciones de estado con iconos -->
+      <!-- Botones de estado -->
       <div class="status-actions" [class.disabled]="sub.isBlocked">
-        <!-- Sin cursar -->
         <button
           type="button"
           class="icon-btn"
@@ -109,11 +136,9 @@
           [disabled]="sub.isBlocked"
           (click)="onStatusClick(sub, 'sin_cursar')"
         >
-          <span class="icon">○</span>
-          <span class="label">Sin cursar</span>
+          ○ <span class="label">Sin cursar</span>
         </button>
 
-        <!-- Pendiente final -->
         <button
           type="button"
           class="icon-btn"
@@ -121,11 +146,9 @@
           [disabled]="sub.isBlocked"
           (click)="onStatusClick(sub, 'pendiente_final')"
         >
-          <span class="icon">⏳</span>
-          <span class="label">Final</span>
+          ⏳ <span class="label">Final</span>
         </button>
 
-        <!-- Aprobada -->
         <button
           type="button"
           class="icon-btn"
@@ -133,8 +156,7 @@
           [disabled]="sub.isBlocked"
           (click)="onStatusClick(sub, 'aprobada')"
         >
-          <span class="icon">✓</span>
-          <span class="label">Aprobada</span>
+          ✓ <span class="label">Aprobada</span>
         </button>
       </div>
 

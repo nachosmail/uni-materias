@@ -1,36 +1,48 @@
 <div class="setup-container">
+  <h2>Configurar tu carrera y plan</h2>
+  <p>
+    Elegí la carrera y el plan de estudios para poder ver tus materias,
+    correlativas y estados.
+  </p>
 
-  <h2>Configuración inicial</h2>
-  <p>Seleccioná tu carrera y plan para comenzar</p>
+  <form (ngSubmit)="saveAndContinue()">
 
-  <!-- CARRERA -->
-  <div class="field">
-    <label>Carrera</label>
+    <!-- Carrera -->
+    <div class="form-group">
+      <label for="career">Carrera</label>
+      <select
+        id="career"
+        [(ngModel)]="selectedCareer"
+        name="career"
+        (change)="onCareerChange()"
+        required
+      >
+        <option [ngValue]="null">-- Seleccioná una carrera --</option>
+        <option *ngFor="let c of careers" [ngValue]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+    </div>
 
-    <select [(ngModel)]="selectedCareer" (change)="onCareerChange()">
-      <option [ngValue]="null" disabled>Elegí una carrera...</option>
-      <option *ngFor="let c of careers" [ngValue]="c.id">{{ c.name }}</option>
-    </select>
-  </div>
+    <!-- Plan -->
+    <div class="form-group">
+      <label for="plan">Plan</label>
+      <select
+        id="plan"
+        [(ngModel)]="selectedPlan"
+        name="plan"
+        [disabled]="!selectedCareer"
+        required
+      >
+        <option [ngValue]="null">-- Seleccioná un plan --</option>
+        <option *ngFor="let p of plans" [ngValue]="p.id">
+          {{ p.name }} ({{ p.code }})
+        </option>
+      </select>
+    </div>
 
-  <!-- PLAN -->
-  <div class="field" *ngIf="selectedCareer">
-    <label>Plan</label>
-
-    <select [(ngModel)]="selectedPlan">
-      <option [ngValue]="null" disabled>Elegí un plan...</option>
-      <option *ngFor="let p of plans" [ngValue]="p.id">
-        {{ p.code }} - {{ p.name }}
-      </option>
-    </select>
-  </div>
-
-  <!-- BOTÓN -->
-  <button class="btn-continue"
-          [disabled]="!selectedCareer || !selectedPlan"
-          (click)="saveAndContinue()">
-
-    Guardar y continuar
-  </button>
-
+    <button type="submit" class="primary-btn" [disabled]="!selectedCareer || !selectedPlan">
+      Guardar y continuar
+    </button>
+  </form>
 </div>

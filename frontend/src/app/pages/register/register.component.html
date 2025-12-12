@@ -1,4 +1,4 @@
-<div class="register-container">
+<div class="auth-container">
   <h2>Crear cuenta nueva</h2>
 
   <form (ngSubmit)="register()">
@@ -19,9 +19,12 @@
       required
     />
 
-    <button type="submit">Registrar</button>
-
+    <button type="submit" class="primary-btn">
+      Registrar
+    </button>
   </form>
 
-  <button type="button" (click)="goBack()">Volver</button>
+  <button type="button" class="secondary-btn" (click)="goBack()">
+    Volver
+  </button>
 </div>

@@ -30,7 +30,6 @@ export class SetupProfileComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // 1) Obtener usuario actual
     const res = await this.supabase.getUser();
     const user = res?.data?.user;
 
@@ -41,7 +40,6 @@ export class SetupProfileComponent implements OnInit {
 
     this.userId = user.id;
 
-    // 2) Cargar carreras
     this.backend.getCareers().subscribe({
       next: data => this.careers = data || [],
       error: err => {
@@ -78,8 +76,7 @@ export class SetupProfileComponent implements OnInit {
       plan_id: this.selectedPlan
     }).subscribe({
       next: (resp) => {
-        // navegamos directo a materias del plan elegido
-        const planId = resp?.plan_id ?? this.selectedPlan;
+        const planId = resp?.plan_id ?? this.selectedPlan!;
         this.router.navigate(['/subjects', planId]);
       },
       error: (err) => {

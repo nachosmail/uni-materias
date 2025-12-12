@@ -4,3 +4,5 @@
 # Variables de Entorno
 .env
 .env.*
+
+developments.txt

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from app.db import get_db
-from app import models  # UserProfile, Career, Plan
+from app import models  # Career, Plan, UserProfile
 
 router = APIRouter(
     prefix="/user_profile",
@@ -14,11 +14,13 @@ router = APIRouter(
 )
 
 
+# ========= GET: traer perfil con nombre de carrera y plan =========
 @router.get("")
 def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     """
     Devuelve el perfil del usuario con NOMBRE de carrera y NOMBRE del plan.
     """
+
     row = (
         db.query(
             models.UserProfile,
@@ -47,7 +49,7 @@ def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     }
 
 
-# ---------- NUEVO: crear/actualizar perfil ----------
+# ========= POST: crear / actualizar perfil =========
 
 class UserProfileIn(BaseModel):
     user_id: UUID
@@ -60,6 +62,8 @@ def upsert_user_profile(payload: UserProfileIn, db: Session = Depends(get_db)):
     """
     Crea o actualiza el perfil del usuario (career_id + plan_id).
     """
+
+    # buscar si ya existe perfil
     profile = (
         db.query(models.UserProfile)
         .filter(models.UserProfile.user_id == str(payload.user_id))
@@ -69,18 +73,20 @@ def upsert_user_profile(payload: UserProfileIn, db: Session = Depends(get_db)):
     now = datetime.utcnow()
 
     if profile:
-      profile.career_id = payload.career_id
-      profile.plan_id = payload.plan_id
-      profile.updated_at = now
+        # actualizar
+        profile.career_id = payload.career_id
+        profile.plan_id = payload.plan_id
+        profile.updated_at = now
     else:
-      profile = models.UserProfile(
-          user_id=str(payload.user_id),
-          career_id=payload.career_id,
-          plan_id=payload.plan_id,
-          created_at=now,
-          updated_at=now,
-      )
-      db.add(profile)
+        # crear nuevo
+        profile = models.UserProfile(
+            user_id=str(payload.user_id),
+            career_id=payload.career_id,
+            plan_id=payload.plan_id,
+            created_at=now,
+            updated_at=now,
+        )
+        db.add(profile)
 
     db.commit()
     db.refresh(profile)
